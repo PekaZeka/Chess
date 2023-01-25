@@ -1,0 +1,12 @@
+.Chessboard-tile {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.black-tile {
+  background-color: #769656;
+}
+.white-tile {
+  background-color: #eeeed2;
+  overflow: hidden;
+}
