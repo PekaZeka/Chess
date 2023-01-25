@@ -1,4 +1,4 @@
-import Chessboard from "./components/chessboard/Chessboard";
+import Chessboard from "./components/Chessboard/Chessboard";
 import "./App.css";
 
 function App() {
