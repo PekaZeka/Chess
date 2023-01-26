@@ -15,7 +15,7 @@
 .horizontal {
   font-size: 1.3em;
   font-weight: 600;
-  color: hsla(0, 0%, 100%, 0.5);
+  color: #ffffff80;
 }
 .vertical {
   display: grid;
