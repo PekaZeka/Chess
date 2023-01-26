@@ -1,12 +1,22 @@
 .Chessboard-tile {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  display: grid;
+  place-content: center;
 }
 .black-tile {
   background-color: #769656;
 }
 .white-tile {
   background-color: #eeeed2;
-  overflow: hidden;
+}
+.chess_piece {
+  width: 100px;
+  height: 100px;
+  background-size: 100px;
+  background-repeat: no-repeat;
+}
+.chess_piece:hover {
+  cursor: grab;
+}
+.chess_piece:active {
+  cursor: grabbing;
 }

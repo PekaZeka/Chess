@@ -6,16 +6,18 @@ interface Props {
 }
 
 function Tile({ coordinates, image }: Props) {
-  if (coordinates % 2 === 0) {
-    return (
-      <div className="Chessboard-tile black-tile">
-        <img src={image} alt="piece" />
-      </div>
-    );
-  }
+  const className =
+    coordinates % 2 === 0
+      ? "Chessboard-tile black-tile"
+      : "Chessboard-tile white-tile";
   return (
-    <div className="Chessboard-tile white-tile">
-      <img src={image} alt="piece" />
+    <div className={className}>
+      {image && (
+        <div
+          style={{ backgroundImage: `url(${image})` }}
+          className="chess_piece"
+        />
+      )}
     </div>
   );
 }
