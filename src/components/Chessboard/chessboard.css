@@ -30,3 +30,6 @@
   height: 2rem;
   align-items: center;
 }
+.axis_items {
+  user-select: none;
+}
