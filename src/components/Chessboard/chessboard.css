@@ -6,8 +6,8 @@
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
   background-color: #eeeed2;
-  width: 52rem;
-  height: 52rem;
+  width: 801px;
+  height: 801px;
   border-radius: 5px;
   overflow: hidden;
 }
@@ -20,7 +20,7 @@
 .vertical {
   display: grid;
   grid-template-rows: repeat(8, 1fr);
-  height: 52rem;
+  height: 801px;
   width: 2rem;
   align-items: center;
 }

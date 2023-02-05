@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import {
   useState,
@@ -8,92 +9,170 @@ import {
   MouseEvent,
 } from "react";
 import Tile from "../Tile/Tile";
+import Referee from "../Referee/Referee";
+import {
+  Piece,
+  TeamType,
+  PieceType,
+  initialBoardState,
+  Position,
+  GRID_SIZE,
+} from "../../Constants";
 import "./chessboard.css";
 
-interface Piece {
-  image: string;
-  x: number;
-  y: number;
-}
-
-const pieces: Piece[] = [];
-let activePiece: HTMLElement | null = null;
-
-for (let p = 0; p < 2; p += 1) {
-  const pieceColor = p === 0 ? "black" : "white";
-  const x = p === 0 ? 7 : 0;
-
-  pieces.push({ image: `assets/images/${pieceColor}_rook.png`, x, y: 0 });
-  pieces.push({
-    image: `assets/images/${pieceColor}_knight.png`,
-    x,
-    y: 1,
-  });
-  pieces.push({
-    image: `assets/images/${pieceColor}_bishop.png`,
-    x,
-    y: 2,
-  });
-  pieces.push({
-    image: `assets/images/${pieceColor}_queen.png`,
-    x,
-    y: 3,
-  });
-  pieces.push({ image: `assets/images/${pieceColor}_king.png`, x, y: 4 });
-  pieces.push({
-    image: `assets/images/${pieceColor}_bishop.png`,
-    x,
-    y: 5,
-  });
-  pieces.push({
-    image: `assets/images/${pieceColor}_knight.png`,
-    x,
-    y: 6,
-  });
-  pieces.push({ image: `assets/images/${pieceColor}_rook.png`, x, y: 7 });
-}
-for (let i = 0; i < 8; i += 1) {
-  pieces.push({ image: "assets/images/white_pawn.png", x: 1, y: i });
-  pieces.push({ image: "assets/images/black_pawn.png", x: 6, y: i });
-}
-
 function Chessboard() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
+  const [grabPosition, setGrabPosition] = useState<Position>({ x: -1, y: -1 });
+  const [pieces, setPieces] = useState<Piece[]>(initialBoardState);
   const chessboardRef = useRef<HTMLDivElement>(null);
 
   function grabPiece(e: MouseEvent) {
     const element = e.target as HTMLElement;
-    if (element.classList.contains("chess_piece")) {
-      const x = e.clientX - 50;
-      const y = e.clientY - 50;
+    const chessboard = chessboardRef.current;
+    if (element.classList.contains("chess_piece") && chessboard) {
+      const grabX = Math.floor((e.clientX - chessboard.offsetLeft) / GRID_SIZE);
+      const grabY = Math.floor(
+        (800 - (e.clientY - chessboard.offsetTop)) / GRID_SIZE
+      );
+      setGrabPosition({
+        x: grabX,
+        y: grabY,
+      });
+      const x = e.clientX - GRID_SIZE / 2;
+      const y = e.clientY - GRID_SIZE / 2;
       element.style.position = "absolute";
       element.style.left = `${x}px`;
       element.style.top = `${y}px`;
-      activePiece = element;
+      setActivePiece(element);
     }
   }
   function movePiece(e: MouseEvent) {
     const chessboard = chessboardRef.current;
     if (activePiece && chessboard) {
-      activePiece.style.position = "absolute";
-      const minX = chessboard.offsetLeft - 50;
-      const maxX = chessboard.offsetLeft + chessboard.clientWidth - 50;
-      const minY = chessboard.offsetTop - 50;
-      const maxY = chessboard.offsetTop + chessboard.clientHeight - 50;
+      const minX = chessboard.offsetLeft - 25;
+      const minY = chessboard.offsetTop - 25;
+      const maxX = chessboard.offsetLeft + chessboard.clientWidth - 75;
+      const maxY = chessboard.offsetTop + chessboard.clientHeight - 75;
       const x = e.clientX - 50;
       const y = e.clientY - 50;
+      activePiece.style.position = "absolute";
 
-      if (x < minX) activePiece.style.left = `${minX}px`;
-      else if (x > maxX) activePiece.style.left = `${maxX}px`;
-      else activePiece.style.left = `${x}px`;
+      if (x < minX) {
+        activePiece.style.left = `${minX}px`;
+      } else if (x > maxX) {
+        activePiece.style.left = `${maxX}px`;
+      } else {
+        activePiece.style.left = `${x}px`;
+      }
 
-      if (y < minY) activePiece.style.top = `${minY}px`;
-      else if (y > maxY) activePiece.style.top = `${maxY}px`;
-      else activePiece.style.top = `${y}px`;
+      if (y < minY) {
+        activePiece.style.top = `${minY}px`;
+      } else if (y > maxY) {
+        activePiece.style.top = `${maxY}px`;
+      } else {
+        activePiece.style.top = `${y}px`;
+      }
     }
   }
-  function dropPiece() {
-    if (activePiece) activePiece = null;
+  function dropPiece(e: MouseEvent) {
+    const chessboard = chessboardRef.current;
+    if (activePiece && chessboard) {
+      const x = Math.floor((e.clientX - chessboard.offsetLeft) / GRID_SIZE);
+      const y = Math.floor(
+        (800 - (e.clientY - chessboard.offsetTop)) / GRID_SIZE
+      );
+
+      const currentPiece = pieces.find(
+        (p) =>
+          p.position.x === grabPosition.x && p.position.y === grabPosition.y
+      );
+
+      if (currentPiece) {
+        const validMove = Referee.isValidMove(
+          grabPosition.x,
+          grabPosition.y,
+          x,
+          y,
+          currentPiece.type,
+          currentPiece.team,
+          pieces
+        );
+
+        const isEnPassant = Referee.isEnPassant(
+          grabPosition.x,
+          grabPosition.y,
+          x,
+          y,
+          currentPiece.type,
+          currentPiece.team,
+          pieces
+        );
+
+        const pawnDirection = currentPiece.team === TeamType.OUR ? 1 : -1;
+
+        if (isEnPassant) {
+          const updatedPieces = pieces.reduce((results, piece) => {
+            if (
+              piece.position.x === grabPosition.x &&
+              piece.position.y === grabPosition.y
+            ) {
+              piece.enPassant = false;
+              piece.position.x = x;
+              piece.position.y = y;
+              results.push(piece);
+            } else if (
+              !(
+                piece.position.x === x && piece.position.y === y - pawnDirection
+              )
+            ) {
+              if (piece.type === PieceType.PAWN) {
+                piece.enPassant = false;
+              }
+              results.push(piece);
+            }
+            return results;
+          }, [] as Piece[]);
+
+          setPieces(updatedPieces);
+        } else if (validMove) {
+          // UPDATES THE PIECE POSITION
+          // AND IF A PIECE IS ATTACKED, REMOVES IT
+          const updatedPieces = pieces.reduce((results, piece) => {
+            if (
+              piece.position.x === grabPosition.x &&
+              piece.position.y === grabPosition.y
+            ) {
+              if (
+                Math.abs(grabPosition.y - y) === 2 &&
+                piece.type === PieceType.PAWN
+              ) {
+                // SPECIAL MOVE
+                piece.enPassant = true;
+              } else {
+                piece.enPassant = false;
+              }
+              piece.position.x = x;
+              piece.position.y = y;
+              results.push(piece);
+            } else if (!(piece.position.x === x && piece.position.y === y)) {
+              if (piece.type === PieceType.PAWN) {
+                piece.enPassant = false;
+              }
+              results.push(piece);
+            }
+            return results;
+          }, [] as Piece[]);
+
+          setPieces(updatedPieces);
+        } else {
+          // RESETS THE PIECE POSITION
+          activePiece.style.position = "relative";
+          activePiece.style.removeProperty("top");
+          activePiece.style.removeProperty("left");
+        }
+      }
+      setActivePiece(null);
+    }
   }
 
   const [board, setBoard] = useState<ReactElement[]>([]);
@@ -108,16 +187,13 @@ function Chessboard() {
 
   useEffect(() => {
     const newBoard = [];
-    for (let i = verticalAxis.length - 1; i >= 0; i -= 1) {
-      for (let j = 0; j < horizontalAxis.length; j += 1) {
+    for (let j = verticalAxis.length - 1; j >= 0; j -= 1) {
+      for (let i = 0; i < horizontalAxis.length; i += 1) {
         const coordinates = i + j + 2;
-        let image: string = "";
-
-        pieces.forEach((p) => {
-          if (p.x === i && p.y === j) {
-            image = p.image;
-          }
-        });
+        const piece = pieces.find(
+          (p) => p.position.x === i && p.position.y === j
+        );
+        const image = piece ? piece.image : undefined;
 
         newBoard.push(
           <Tile key={`${i},${j}`} image={image} coordinates={coordinates} />
@@ -125,7 +201,7 @@ function Chessboard() {
       }
     }
     setBoard(newBoard);
-  }, [horizontalAxis, verticalAxis]);
+  }, [horizontalAxis, verticalAxis, pieces]);
 
   const verticalAxisItems = verticalAxis.map((item) => (
     <div className="axis_items" key={item}>
@@ -146,7 +222,7 @@ function Chessboard() {
           className="board"
           onMouseDown={(e) => grabPiece(e)}
           onMouseMove={(e) => movePiece(e)}
-          onMouseUp={() => dropPiece()}
+          onMouseUp={(e) => dropPiece(e)}
           ref={chessboardRef}
         >
           {board}
