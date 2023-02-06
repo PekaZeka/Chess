@@ -11,12 +11,13 @@ import {
 import Tile from "../Tile/Tile";
 import Referee from "../Referee/Referee";
 import {
+  GRID_SIZE,
   Piece,
   TeamType,
   PieceType,
   initialBoardState,
   Position,
-  GRID_SIZE,
+  samePosition,
 } from "../../Constants";
 import "./chessboard.css";
 
@@ -46,6 +47,7 @@ function Chessboard() {
       setActivePiece(element);
     }
   }
+
   function movePiece(e: MouseEvent) {
     const chessboard = chessboardRef.current;
     if (activePiece && chessboard) {
@@ -56,7 +58,6 @@ function Chessboard() {
       const x = e.clientX - 50;
       const y = e.clientY - 50;
       activePiece.style.position = "absolute";
-
       if (x < minX) {
         activePiece.style.left = `${minX}px`;
       } else if (x > maxX) {
@@ -64,7 +65,6 @@ function Chessboard() {
       } else {
         activePiece.style.left = `${x}px`;
       }
-
       if (y < minY) {
         activePiece.style.top = `${minY}px`;
       } else if (y > maxY) {
@@ -74,6 +74,7 @@ function Chessboard() {
       }
     }
   }
+
   function dropPiece(e: MouseEvent) {
     const chessboard = chessboardRef.current;
     if (activePiece && chessboard) {
@@ -81,49 +82,34 @@ function Chessboard() {
       const y = Math.floor(
         (800 - (e.clientY - chessboard.offsetTop)) / GRID_SIZE
       );
-
-      const currentPiece = pieces.find(
-        (p) =>
-          p.position.x === grabPosition.x && p.position.y === grabPosition.y
+      const currentPiece = pieces.find((p) =>
+        samePosition(p.position, grabPosition)
       );
-
       if (currentPiece) {
         const validMove = Referee.isValidMove(
-          grabPosition.x,
-          grabPosition.y,
-          x,
-          y,
+          grabPosition,
+          { x, y },
           currentPiece.type,
           currentPiece.team,
           pieces
         );
-
         const isEnPassant = Referee.isEnPassant(
-          grabPosition.x,
-          grabPosition.y,
-          x,
-          y,
+          grabPosition,
+          { x, y },
           currentPiece.type,
           currentPiece.team,
           pieces
         );
-
         const pawnDirection = currentPiece.team === TeamType.OUR ? 1 : -1;
-
         if (isEnPassant) {
           const updatedPieces = pieces.reduce((results, piece) => {
-            if (
-              piece.position.x === grabPosition.x &&
-              piece.position.y === grabPosition.y
-            ) {
+            if (samePosition(piece.position, grabPosition)) {
               piece.enPassant = false;
               piece.position.x = x;
               piece.position.y = y;
               results.push(piece);
             } else if (
-              !(
-                piece.position.x === x && piece.position.y === y - pawnDirection
-              )
+              !samePosition(piece.position, { x, y: y - pawnDirection })
             ) {
               if (piece.type === PieceType.PAWN) {
                 piece.enPassant = false;
@@ -132,29 +118,19 @@ function Chessboard() {
             }
             return results;
           }, [] as Piece[]);
-
           setPieces(updatedPieces);
         } else if (validMove) {
           // UPDATES THE PIECE POSITION
           // AND IF A PIECE IS ATTACKED, REMOVES IT
           const updatedPieces = pieces.reduce((results, piece) => {
-            if (
-              piece.position.x === grabPosition.x &&
-              piece.position.y === grabPosition.y
-            ) {
-              if (
+            if (samePosition(piece.position, grabPosition)) {
+              piece.enPassant =
                 Math.abs(grabPosition.y - y) === 2 &&
-                piece.type === PieceType.PAWN
-              ) {
-                // SPECIAL MOVE
-                piece.enPassant = true;
-              } else {
-                piece.enPassant = false;
-              }
+                piece.type === PieceType.PAWN;
               piece.position.x = x;
               piece.position.y = y;
               results.push(piece);
-            } else if (!(piece.position.x === x && piece.position.y === y)) {
+            } else if (!samePosition(piece.position, { x, y })) {
               if (piece.type === PieceType.PAWN) {
                 piece.enPassant = false;
               }
@@ -162,7 +138,6 @@ function Chessboard() {
             }
             return results;
           }, [] as Piece[]);
-
           setPieces(updatedPieces);
         } else {
           // RESETS THE PIECE POSITION
@@ -174,7 +149,6 @@ function Chessboard() {
       setActivePiece(null);
     }
   }
-
   const [board, setBoard] = useState<ReactElement[]>([]);
   const verticalAxis: string[] = useMemo(
     () => ["1", "2", "3", "4", "5", "6", "7", "8"],
@@ -184,17 +158,15 @@ function Chessboard() {
     () => ["a", "b", "c", "d", "e", "f", "g", "h"],
     []
   );
-
   useEffect(() => {
     const newBoard = [];
     for (let j = verticalAxis.length - 1; j >= 0; j -= 1) {
       for (let i = 0; i < horizontalAxis.length; i += 1) {
         const coordinates = i + j + 2;
-        const piece = pieces.find(
-          (p) => p.position.x === i && p.position.y === j
+        const piece = pieces.find((p) =>
+          samePosition(p.position, { x: i, y: j })
         );
         const image = piece ? piece.image : undefined;
-
         newBoard.push(
           <Tile key={`${i},${j}`} image={image} coordinates={coordinates} />
         );
@@ -202,7 +174,6 @@ function Chessboard() {
     }
     setBoard(newBoard);
   }, [horizontalAxis, verticalAxis, pieces]);
-
   const verticalAxisItems = verticalAxis.map((item) => (
     <div className="axis_items" key={item}>
       {item}
@@ -213,7 +184,6 @@ function Chessboard() {
       {item}
     </div>
   ));
-
   return (
     <div className="Chessboard">
       <div className="vertical">{verticalAxisItems}</div>
