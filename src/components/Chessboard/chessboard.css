@@ -1,13 +1,43 @@
 .Chessboard {
   display: flex;
 }
+.modal-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 32px;
+  left: 32px;
+}
+.hidden {
+  display: none;
+}
+.modal-body {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 160px;
+  width: 800px;
+  background-color: rgba(10, 10, 10, 0.7);
+}
+.promotion-piece {
+  height: 130px;
+  padding: 10px;
+}
+.promotion-piece:hover {
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 15%;
+}
 .board {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
   background-color: #eeeed2;
-  width: 801px;
-  height: 801px;
+  width: 800px;
+  height: 800px;
   border-radius: 5px;
   overflow: hidden;
 }
@@ -20,14 +50,14 @@
 .vertical {
   display: grid;
   grid-template-rows: repeat(8, 1fr);
-  height: 801px;
-  width: 2rem;
+  height: 800px;
+  width: 32px;
   align-items: center;
 }
 .horizontal {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  height: 2rem;
+  height: 32px;
   align-items: center;
 }
 .axis_items {

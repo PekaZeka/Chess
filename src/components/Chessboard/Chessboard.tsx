@@ -1,3 +1,5 @@
+/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable no-param-reassign */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 import {
@@ -25,7 +27,9 @@ function Chessboard() {
   const [activePiece, setActivePiece] = useState<HTMLElement | null>(null);
   const [grabPosition, setGrabPosition] = useState<Position>({ x: -1, y: -1 });
   const [pieces, setPieces] = useState<Piece[]>(initialBoardState);
+  const [promotionPawn, setPromotionPawn] = useState<Piece>();
   const chessboardRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   function grabPiece(e: MouseEvent) {
     const element = e.target as HTMLElement;
@@ -133,9 +137,10 @@ function Chessboard() {
               piece.position.y = y;
 
               const promotionRow = piece.team === TeamType.OUR ? 7 : 0;
-
-              if (y === promotionRow) {
-                console.log("This piece is up for promotion!");
+              // PROMOTION
+              if (y === promotionRow && piece.type === PieceType.PAWN) {
+                modalRef.current?.classList.remove("hidden");
+                setPromotionPawn(piece);
               }
 
               results.push(piece);
@@ -158,6 +163,30 @@ function Chessboard() {
       setActivePiece(null);
     }
   }
+
+  function promotePawn(pieceType: PieceType) {
+    if (promotionPawn === undefined) {
+      return;
+    }
+    const updatedPieces = pieces.reduce((results, piece) => {
+      if (samePosition(piece.position, promotionPawn.position)) {
+        piece.type = pieceType;
+        const teamType = piece.team === TeamType.OUR ? "white" : "black";
+        piece.image = `assets/images/${teamType}_${PieceType[
+          pieceType
+        ].toLowerCase()}.png`;
+      }
+      results.push(piece);
+      return results;
+    }, [] as Piece[]);
+    setPieces(updatedPieces);
+    modalRef.current?.classList.add("hidden");
+  }
+
+  function promotionTeamType() {
+    return promotionPawn?.team === TeamType.OUR ? "white" : "black";
+  }
+
   const [board, setBoard] = useState<ReactElement[]>([]);
   const verticalAxis: string[] = useMemo(
     () => ["1", "2", "3", "4", "5", "6", "7", "8"],
@@ -193,10 +222,39 @@ function Chessboard() {
       {item}
     </div>
   ));
+
   return (
     <div className="Chessboard">
       <div className="vertical">{verticalAxisItems}</div>
       <div>
+        <div className="modal-overlay hidden" ref={modalRef}>
+          <div className="modal-body">
+            <img
+              onClick={() => promotePawn(PieceType.ROOK)}
+              className="promotion-piece"
+              src={`/assets/images/${promotionTeamType()}_rook.png`}
+              alt="rook"
+            />
+            <img
+              onClick={() => promotePawn(PieceType.BISHOP)}
+              className="promotion-piece"
+              src={`/assets/images/${promotionTeamType()}_bishop.png`}
+              alt="bishop"
+            />
+            <img
+              onClick={() => promotePawn(PieceType.KNIGHT)}
+              className="promotion-piece"
+              src={`/assets/images/${promotionTeamType()}_knight.png`}
+              alt="knight"
+            />
+            <img
+              onClick={() => promotePawn(PieceType.QUEEN)}
+              className="promotion-piece"
+              src={`/assets/images/${promotionTeamType()}_queen.png`}
+              alt="queen"
+            />
+          </div>
+        </div>
         <div
           className="board"
           onMouseDown={(e) => grabPiece(e)}
