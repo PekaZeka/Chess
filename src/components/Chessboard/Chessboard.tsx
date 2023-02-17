@@ -124,11 +124,20 @@ function Chessboard() {
           // AND IF A PIECE IS ATTACKED, REMOVES IT
           const updatedPieces = pieces.reduce((results, piece) => {
             if (samePosition(piece.position, grabPosition)) {
+              // EN PASSANT
               piece.enPassant =
                 Math.abs(grabPosition.y - y) === 2 &&
                 piece.type === PieceType.PAWN;
+
               piece.position.x = x;
               piece.position.y = y;
+
+              const promotionRow = piece.team === TeamType.OUR ? 7 : 0;
+
+              if (y === promotionRow) {
+                console.log("This piece is up for promotion!");
+              }
+
               results.push(piece);
             } else if (!samePosition(piece.position, { x, y })) {
               if (piece.type === PieceType.PAWN) {
