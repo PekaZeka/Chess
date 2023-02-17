@@ -252,6 +252,45 @@ export default class Referee {
     return false;
   }
 
+  static kingMove(
+    initialPosition: Position,
+    desiredPosition: Position,
+    team: TeamType,
+    boardState: Piece[]
+  ): boolean {
+    let multiplierX;
+    if (desiredPosition.x < initialPosition.x) {
+      multiplierX = -1;
+    } else if (desiredPosition.x > initialPosition.x) {
+      multiplierX = 1;
+    } else {
+      multiplierX = 0;
+    }
+    let multiplierY;
+    if (desiredPosition.y < initialPosition.y) {
+      multiplierY = -1;
+    } else if (desiredPosition.y > initialPosition.y) {
+      multiplierY = 1;
+    } else {
+      multiplierY = 0;
+    }
+    const passedPosition: Position = {
+      x: initialPosition.x + multiplierX,
+      y: initialPosition.y + multiplierY,
+    };
+    if (samePosition(passedPosition, desiredPosition)) {
+      if (
+        !this.tileIsOccupied(desiredPosition, boardState) ||
+        this.tileIsOccupiedByOpponent(desiredPosition, boardState, team)
+      ) {
+        return true;
+      }
+    } else if (this.tileIsOccupied(passedPosition, boardState)) {
+      return false;
+    }
+    return false;
+  }
+
   static isValidMove(
     initialPosition: Position,
     desiredPosition: Position,
@@ -302,7 +341,12 @@ export default class Referee {
         );
         break;
       case PieceType.KING:
-        console.log("King");
+        validMove = this.kingMove(
+          initialPosition,
+          desiredPosition,
+          team,
+          boardState
+        );
         break;
 
       default:
