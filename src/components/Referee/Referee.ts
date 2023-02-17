@@ -106,18 +106,16 @@ export default class Referee {
     team: TeamType,
     boardState: Piece[]
   ): boolean {
-    if (initialPosition.x === desiredPosition.x) {
-      for (let i = 1; i < 8; i += 1) {
+    for (let i = 1; i < 8; i += 1) {
+      //  VERTICAL MOVEMENT
+      if (initialPosition.x === desiredPosition.x) {
         const multiplier = desiredPosition.y < initialPosition.y ? -1 : 1;
 
         const passedPosition: Position = {
           x: initialPosition.x,
           y: initialPosition.y + i * multiplier,
         };
-        if (
-          passedPosition.x === desiredPosition.x &&
-          passedPosition.y === desiredPosition.y
-        ) {
+        if (samePosition(passedPosition, desiredPosition)) {
           if (
             !this.tileIsOccupied(desiredPosition, boardState) ||
             this.tileIsOccupiedByOpponent(desiredPosition, boardState, team)
@@ -129,20 +127,15 @@ export default class Referee {
           break;
         }
       }
-    }
-
-    if (initialPosition.y === desiredPosition.y) {
-      for (let i = 1; i < 8; i += 1) {
+      // HORIZONTAL MOVEMENT
+      if (initialPosition.y === desiredPosition.y) {
         const multiplier = desiredPosition.x < initialPosition.x ? -1 : 1;
 
         const passedPosition: Position = {
           x: initialPosition.x + i * multiplier,
           y: initialPosition.y,
         };
-        if (
-          passedPosition.x === desiredPosition.x &&
-          passedPosition.y === desiredPosition.y
-        ) {
+        if (samePosition(passedPosition, desiredPosition)) {
           if (
             !this.tileIsOccupied(desiredPosition, boardState) ||
             this.tileIsOccupiedByOpponent(desiredPosition, boardState, team)
@@ -164,7 +157,6 @@ export default class Referee {
     team: TeamType,
     boardState: Piece[]
   ): boolean {
-    // MOVEMENT OF THE KNIGHT
     for (let i = -1; i < 2; i += 2) {
       for (let j = -1; j < 2; j += 2) {
         // TOP AND BOTTOM SIDE MOVEMENT
@@ -196,99 +188,65 @@ export default class Referee {
     team: TeamType,
     boardState: Piece[]
   ): boolean {
-    // MOVEMENT OF THE BISHOP
     for (let i = 1; i < 8; i += 1) {
-      // UP RIGHT MOVEMENT
-      if (
-        desiredPosition.x > initialPosition.x &&
-        desiredPosition.y > initialPosition.y
-      ) {
-        const passedPosition: Position = {
-          x: initialPosition.x + i,
-          y: initialPosition.y + i,
-        };
-        // CHECK IF THE TILE IS THE DESTINATION TILE
-        if (samePosition(passedPosition, desiredPosition)) {
-          // DEALING WITH DESTINATION TILE
-          if (
-            !this.tileIsOccupied(desiredPosition, boardState) ||
-            this.tileIsOccupiedByOpponent(desiredPosition, boardState, team)
-          ) {
-            return true;
-          }
-        } else if (this.tileIsOccupied(passedPosition, boardState)) {
-          // DEALING WITH PASSING THE TILE
-          break;
+      // DIAGONAL MOVEMENT
+      const multiplierX = desiredPosition.x < initialPosition.x ? -1 : 1;
+      const multiplierY = desiredPosition.y < initialPosition.y ? -1 : 1;
+
+      const passedPosition: Position = {
+        x: initialPosition.x + i * multiplierX,
+        y: initialPosition.y + i * multiplierY,
+      };
+      if (samePosition(passedPosition, desiredPosition)) {
+        if (
+          !this.tileIsOccupied(desiredPosition, boardState) ||
+          this.tileIsOccupiedByOpponent(desiredPosition, boardState, team)
+        ) {
+          return true;
         }
+      } else if (this.tileIsOccupied(passedPosition, boardState)) {
+        break;
       }
-      // UP LEFT MOVEMENT
-      if (
-        desiredPosition.x < initialPosition.x &&
-        desiredPosition.y > initialPosition.y
-      ) {
-        const passedPosition: Position = {
-          x: initialPosition.x - i,
-          y: initialPosition.y + i,
-        };
-        // CHECK IF THE TILE IS THE DESTINATION TILE
-        if (samePosition(passedPosition, desiredPosition)) {
-          // DEALING WITH DESTINATION TILE
-          if (
-            !this.tileIsOccupied(desiredPosition, boardState) ||
-            this.tileIsOccupiedByOpponent(desiredPosition, boardState, team)
-          ) {
-            return true;
-          }
-        } else if (this.tileIsOccupied(passedPosition, boardState)) {
-          // DEALING WITH PASSING THE TILE
-          break;
-        }
+    }
+    return false;
+  }
+
+  static queenMove(
+    initialPosition: Position,
+    desiredPosition: Position,
+    team: TeamType,
+    boardState: Piece[]
+  ): boolean {
+    for (let i = 1; i < 8; i += 1) {
+      let multiplierX;
+      if (desiredPosition.x < initialPosition.x) {
+        multiplierX = -1;
+      } else if (desiredPosition.x > initialPosition.x) {
+        multiplierX = 1;
+      } else {
+        multiplierX = 0;
       }
-      // BOTTOM RIGHT MOVEMENT
-      if (
-        desiredPosition.x > initialPosition.x &&
-        desiredPosition.y < initialPosition.y
-      ) {
-        const passedPosition: Position = {
-          x: initialPosition.x + i,
-          y: initialPosition.y - i,
-        };
-        // CHECK IF THE TILE IS THE DESTINATION TILE
-        if (samePosition(passedPosition, desiredPosition)) {
-          // DEALING WITH DESTINATION TILE
-          if (
-            !this.tileIsOccupied(desiredPosition, boardState) ||
-            this.tileIsOccupiedByOpponent(desiredPosition, boardState, team)
-          ) {
-            return true;
-          }
-        } else if (this.tileIsOccupied(passedPosition, boardState)) {
-          // DEALING WITH PASSING THE TILE
-          break;
-        }
+      let multiplierY;
+      if (desiredPosition.y < initialPosition.y) {
+        multiplierY = -1;
+      } else if (desiredPosition.y > initialPosition.y) {
+        multiplierY = 1;
+      } else {
+        multiplierY = 0;
       }
-      // BOTTOM LEFT MOVEMENT
-      if (
-        desiredPosition.x < initialPosition.x &&
-        desiredPosition.y < initialPosition.y
-      ) {
-        const passedPosition: Position = {
-          x: initialPosition.x - i,
-          y: initialPosition.y - i,
-        };
-        // CHECK IF THE TILE IS THE DESTINATION TILE
-        if (samePosition(passedPosition, desiredPosition)) {
-          // DEALING WITH DESTINATION TILE
-          if (
-            !this.tileIsOccupied(desiredPosition, boardState) ||
-            this.tileIsOccupiedByOpponent(desiredPosition, boardState, team)
-          ) {
-            return true;
-          }
-        } else if (this.tileIsOccupied(passedPosition, boardState)) {
-          // DEALING WITH PASSING THE TILE
-          break;
+      const passedPosition: Position = {
+        x: initialPosition.x + i * multiplierX,
+        y: initialPosition.y + i * multiplierY,
+      };
+      if (samePosition(passedPosition, desiredPosition)) {
+        if (
+          !this.tileIsOccupied(desiredPosition, boardState) ||
+          this.tileIsOccupiedByOpponent(desiredPosition, boardState, team)
+        ) {
+          return true;
         }
+      } else if (this.tileIsOccupied(passedPosition, boardState)) {
+        break;
       }
     }
     return false;
@@ -336,7 +294,12 @@ export default class Referee {
         );
         break;
       case PieceType.QUEEN:
-        console.log("Queen");
+        validMove = this.queenMove(
+          initialPosition,
+          desiredPosition,
+          team,
+          boardState
+        );
         break;
       case PieceType.KING:
         console.log("King");
