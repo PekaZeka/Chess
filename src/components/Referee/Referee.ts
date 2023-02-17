@@ -101,14 +101,15 @@ export default class Referee {
   }
 
   // TODO
-  // Pawn promotion
+  // Cancel movement on right click
+  // Pawn promotion (when right click or click on modal overlay cancel the promotion)
+  // Add hints for possible moves
   // Prevent king from moving into danger
   // Add castling (prevent if the tiles between king and rook are attacked)
   // Add check
   // Add checkmate
   // Add stalemate
   // Add threefold repetition
-  // Add possible moves preview
   // Add premove
   // Add player move order
 }
