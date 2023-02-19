@@ -1,12 +1,12 @@
 import { Position, TeamType, Piece } from "../../../Constants";
 import { tileIsOccupied, tileIsOccupiedByOpponent } from "./GeneralRules";
 
-function knightMove(
+export const knightMove = (
   initialPosition: Position,
   desiredPosition: Position,
   team: TeamType,
   boardState: Piece[]
-): boolean {
+): boolean => {
   for (let i = -1; i < 2; i += 2) {
     for (let j = -1; j < 2; j += 2) {
       // TOP AND BOTTOM SIDE MOVEMENT
@@ -30,6 +30,39 @@ function knightMove(
     }
   }
   return false;
-}
+};
 
-export default knightMove;
+export const getPossibleKnightMoves = (
+  knight: Piece,
+  boardState: Piece[]
+): Position[] => {
+  const possibleMoves: Position[] = [];
+
+  for (let i = -1; i < 2; i += 2) {
+    for (let j = -1; j < 2; j += 2) {
+      const verticalMove: Position = {
+        x: knight.position.x + j,
+        y: knight.position.y + i * 2,
+      };
+      const horizontalMove: Position = {
+        x: knight.position.x + i * 2,
+        y: knight.position.y + j,
+      };
+
+      if (
+        !tileIsOccupied(verticalMove, boardState) ||
+        tileIsOccupiedByOpponent(verticalMove, boardState, knight.team)
+      ) {
+        possibleMoves.push(verticalMove);
+      }
+      if (
+        !tileIsOccupied(horizontalMove, boardState) ||
+        tileIsOccupiedByOpponent(horizontalMove, boardState, knight.team)
+      ) {
+        possibleMoves.push(horizontalMove);
+      }
+    }
+  }
+
+  return possibleMoves;
+};

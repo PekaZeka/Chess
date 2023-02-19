@@ -1,12 +1,12 @@
 import { Position, TeamType, Piece, samePosition } from "../../../Constants";
 import { tileIsOccupied, tileIsOccupiedByOpponent } from "./GeneralRules";
 
-function queenMove(
+export const queenMove = (
   initialPosition: Position,
   desiredPosition: Position,
   team: TeamType,
   boardState: Piece[]
-): boolean {
+): boolean => {
   for (let i = 1; i < 8; i += 1) {
     let multiplierX;
     if (desiredPosition.x < initialPosition.x) {
@@ -40,6 +40,133 @@ function queenMove(
     }
   }
   return false;
-}
+};
 
-export default queenMove;
+export const getPossibleQueenMoves = (
+  queen: Piece,
+  boardState: Piece[]
+): Position[] => {
+  const possibleMoves: Position[] = [];
+  // UP
+  for (let i = 1; i < 8; i += 1) {
+    const destination: Position = {
+      x: queen.position.x,
+      y: queen.position.y + i,
+    };
+    if (!tileIsOccupied(destination, boardState)) {
+      possibleMoves.push(destination);
+    } else if (tileIsOccupiedByOpponent(destination, boardState, queen.team)) {
+      possibleMoves.push(destination);
+      break;
+    } else {
+      break;
+    }
+  }
+  // DOWN
+  for (let i = 1; i < 8; i += 1) {
+    const destination: Position = {
+      x: queen.position.x,
+      y: queen.position.y - i,
+    };
+    if (!tileIsOccupied(destination, boardState)) {
+      possibleMoves.push(destination);
+    } else if (tileIsOccupiedByOpponent(destination, boardState, queen.team)) {
+      possibleMoves.push(destination);
+      break;
+    } else {
+      break;
+    }
+  }
+  // LEFT
+  for (let i = 1; i < 8; i += 1) {
+    const destination: Position = {
+      x: queen.position.x - i,
+      y: queen.position.y,
+    };
+    if (!tileIsOccupied(destination, boardState)) {
+      possibleMoves.push(destination);
+    } else if (tileIsOccupiedByOpponent(destination, boardState, queen.team)) {
+      possibleMoves.push(destination);
+      break;
+    } else {
+      break;
+    }
+  }
+  // RIGHT
+  for (let i = 1; i < 8; i += 1) {
+    const destination: Position = {
+      x: queen.position.x + i,
+      y: queen.position.y,
+    };
+    if (!tileIsOccupied(destination, boardState)) {
+      possibleMoves.push(destination);
+    } else if (tileIsOccupiedByOpponent(destination, boardState, queen.team)) {
+      possibleMoves.push(destination);
+      break;
+    } else {
+      break;
+    }
+  }
+  // TOP RIGHT
+  for (let i = 1; i < 8; i += 1) {
+    const destination: Position = {
+      x: queen.position.x + i,
+      y: queen.position.y + i,
+    };
+    if (!tileIsOccupied(destination, boardState)) {
+      possibleMoves.push(destination);
+    } else if (tileIsOccupiedByOpponent(destination, boardState, queen.team)) {
+      possibleMoves.push(destination);
+      break;
+    } else {
+      break;
+    }
+  }
+  // BOT RIGHT
+  for (let i = 1; i < 8; i += 1) {
+    const destination: Position = {
+      x: queen.position.x + i,
+      y: queen.position.y - i,
+    };
+    if (!tileIsOccupied(destination, boardState)) {
+      possibleMoves.push(destination);
+    } else if (tileIsOccupiedByOpponent(destination, boardState, queen.team)) {
+      possibleMoves.push(destination);
+      break;
+    } else {
+      break;
+    }
+  }
+  // TOP LEFT
+  for (let i = 1; i < 8; i += 1) {
+    const destination: Position = {
+      x: queen.position.x - i,
+      y: queen.position.y + i,
+    };
+    if (!tileIsOccupied(destination, boardState)) {
+      possibleMoves.push(destination);
+    } else if (tileIsOccupiedByOpponent(destination, boardState, queen.team)) {
+      possibleMoves.push(destination);
+      break;
+    } else {
+      break;
+    }
+  }
+  // BOT LEFT
+  for (let i = 1; i < 8; i += 1) {
+    const destination: Position = {
+      x: queen.position.x - i,
+      y: queen.position.y - i,
+    };
+    if (!tileIsOccupied(destination, boardState)) {
+      possibleMoves.push(destination);
+    } else if (tileIsOccupiedByOpponent(destination, boardState, queen.team)) {
+      possibleMoves.push(destination);
+      break;
+    } else {
+      break;
+    }
+  }
+
+  return possibleMoves;
+};

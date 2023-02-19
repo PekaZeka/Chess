@@ -1,12 +1,12 @@
 import { Position, TeamType, Piece, samePosition } from "../../../Constants";
 import { tileIsOccupied, tileIsOccupiedByOpponent } from "./GeneralRules";
 
-function rookMove(
+export const rookMove = (
   initialPosition: Position,
   desiredPosition: Position,
   team: TeamType,
   boardState: Piece[]
-): boolean {
+): boolean => {
   for (let i = 1; i < 8; i += 1) {
     //  VERTICAL MOVEMENT
     if (initialPosition.x === desiredPosition.x) {
@@ -50,6 +50,73 @@ function rookMove(
     }
   }
   return false;
-}
+};
 
-export default rookMove;
+export const getPossibleRookMoves = (
+  rook: Piece,
+  boardState: Piece[]
+): Position[] => {
+  const possibleMoves: Position[] = [];
+  // UP
+  for (let i = 1; i < 8; i += 1) {
+    const destination: Position = {
+      x: rook.position.x,
+      y: rook.position.y + i,
+    };
+    if (!tileIsOccupied(destination, boardState)) {
+      possibleMoves.push(destination);
+    } else if (tileIsOccupiedByOpponent(destination, boardState, rook.team)) {
+      possibleMoves.push(destination);
+      break;
+    } else {
+      break;
+    }
+  }
+  // DOWN
+  for (let i = 1; i < 8; i += 1) {
+    const destination: Position = {
+      x: rook.position.x,
+      y: rook.position.y - i,
+    };
+    if (!tileIsOccupied(destination, boardState)) {
+      possibleMoves.push(destination);
+    } else if (tileIsOccupiedByOpponent(destination, boardState, rook.team)) {
+      possibleMoves.push(destination);
+      break;
+    } else {
+      break;
+    }
+  }
+  // LEFT
+  for (let i = 1; i < 8; i += 1) {
+    const destination: Position = {
+      x: rook.position.x - i,
+      y: rook.position.y,
+    };
+    if (!tileIsOccupied(destination, boardState)) {
+      possibleMoves.push(destination);
+    } else if (tileIsOccupiedByOpponent(destination, boardState, rook.team)) {
+      possibleMoves.push(destination);
+      break;
+    } else {
+      break;
+    }
+  }
+  // RIGHT
+  for (let i = 1; i < 8; i += 1) {
+    const destination: Position = {
+      x: rook.position.x + i,
+      y: rook.position.y,
+    };
+    if (!tileIsOccupied(destination, boardState)) {
+      possibleMoves.push(destination);
+    } else if (tileIsOccupiedByOpponent(destination, boardState, rook.team)) {
+      possibleMoves.push(destination);
+      break;
+    } else {
+      break;
+    }
+  }
+
+  return possibleMoves;
+};

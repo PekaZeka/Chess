@@ -1,4 +1,4 @@
-.Chessboard-tile {
+.chessboard-tile {
   display: grid;
   place-content: center;
   width: 100%;
@@ -9,6 +9,13 @@
 }
 .white-tile {
   background-color: #eeeed2;
+}
+.higlight-tile::before {
+  content: " ";
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.1);
 }
 .chess_piece {
   width: 100px;

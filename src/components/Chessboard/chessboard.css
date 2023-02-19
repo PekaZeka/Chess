@@ -10,6 +10,7 @@
   right: 0;
   bottom: 32px;
   left: 32px;
+  z-index: 2;
 }
 .hidden {
   display: none;

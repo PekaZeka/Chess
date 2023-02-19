@@ -3,13 +3,17 @@ import "./tile.css";
 interface Props {
   image?: string;
   coordinates: number;
+  highlight: boolean;
 }
 
-function Tile({ coordinates, image }: Props) {
-  const className =
-    coordinates % 2 === 0
-      ? "Chessboard-tile black-tile"
-      : "Chessboard-tile white-tile";
+function Tile({ coordinates, image, highlight }: Props) {
+  const className: string = [
+    "chessboard-tile",
+    coordinates % 2 === 0 ? "black-tile" : "white-tile",
+    highlight && "higlight-tile",
+  ]
+    .filter(Boolean)
+    .join(" ");
   return (
     <div className={className}>
       {image && (

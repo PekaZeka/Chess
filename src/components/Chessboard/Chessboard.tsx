@@ -31,7 +31,17 @@ function Chessboard() {
   const chessboardRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
+  function updateValidMoves() {
+    setPieces((currentPieces) => {
+      return currentPieces.map((p) => {
+        p.possibleMoves = Referee.getValidMoves(p, currentPieces);
+        return p;
+      });
+    });
+  }
+
   function grabPiece(e: MouseEvent) {
+    updateValidMoves();
     const element = e.target as HTMLElement;
     const chessboard = chessboardRef.current;
     if (element.classList.contains("chess_piece") && chessboard) {
@@ -205,13 +215,28 @@ function Chessboard() {
           samePosition(p.position, { x: i, y: j })
         );
         const image = piece ? piece.image : undefined;
+        const currentPiece =
+          activePiece != null
+            ? pieces.find((p) => samePosition(p.position, grabPosition))
+            : undefined;
+        const highlight = currentPiece?.possibleMoves
+          ? currentPiece.possibleMoves.some((p) =>
+              samePosition(p, { x: i, y: j })
+            )
+          : false;
+
         newBoard.push(
-          <Tile key={`${i},${j}`} image={image} coordinates={coordinates} />
+          <Tile
+            key={`${i},${j}`}
+            image={image}
+            coordinates={coordinates}
+            highlight={highlight}
+          />
         );
       }
     }
     setBoard(newBoard);
-  }, [horizontalAxis, verticalAxis, pieces]);
+  }, [horizontalAxis, verticalAxis, pieces, grabPosition, activePiece]);
   const verticalAxisItems = verticalAxis.map((item) => (
     <div className="axis_items" key={item}>
       {item}
