@@ -10,12 +10,20 @@
 .white-tile {
   background-color: #eeeed2;
 }
-.higlight-tile::before {
+.higlight-tile:not(.chess_piece_tile)::before {
   content: " ";
   width: 32px;
   height: 32px;
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.1);
+}
+.higlight-tile.chess_piece_tile::before {
+  content: " ";
+  position: absolute;
+  width: 84px;
+  height: 84px;
+  border: 8px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
 }
 .chess_piece {
   width: 100px;

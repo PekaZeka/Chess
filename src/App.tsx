@@ -1,10 +1,10 @@
-import Chessboard from "./components/Chessboard/Chessboard";
+import Referee from "./components/Referee/Referee";
 import "./App.css";
 
 function App() {
   return (
     <div className="App">
-      <Chessboard />
+      <Referee />
     </div>
   );
 }

@@ -11,6 +11,7 @@ function Tile({ coordinates, image, highlight }: Props) {
     "chessboard-tile",
     coordinates % 2 === 0 ? "black-tile" : "white-tile",
     highlight && "higlight-tile",
+    image && "chess_piece_tile",
   ]
     .filter(Boolean)
     .join(" ");
