@@ -1,4 +1,4 @@
-import { Position, TeamType, Piece, samePosition } from "../../../Constants";
+import { Position, TeamType, Piece, samePosition } from "../../Constants";
 import { tileIsOccupied, tileIsOccupiedByOpponent } from "./GeneralRules";
 
 export const kingMove = (

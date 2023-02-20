@@ -11,7 +11,7 @@ function Tile({ coordinates, image, highlight }: Props) {
     "chessboard-tile",
     coordinates % 2 === 0 ? "black-tile" : "white-tile",
     highlight && "higlight-tile",
-    image && "chess_piece_tile",
+    image && "chess-piece_tile",
   ]
     .filter(Boolean)
     .join(" ");
@@ -20,7 +20,7 @@ function Tile({ coordinates, image, highlight }: Props) {
       {image && (
         <div
           style={{ backgroundImage: `url(${image})` }}
-          className="chess_piece"
+          className="chess-piece"
         />
       )}
     </div>

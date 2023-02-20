@@ -1,8 +1,8 @@
 .chessboard-tile {
   display: grid;
   place-content: center;
-  width: 100%;
-  height: 100%;
+  width: 100px;
+  height: 100px;
 }
 .black-tile {
   background-color: #769656;
@@ -10,14 +10,14 @@
 .white-tile {
   background-color: #eeeed2;
 }
-.higlight-tile:not(.chess_piece_tile)::before {
+.higlight-tile:not(.chess-piece_tile)::before {
   content: " ";
   width: 32px;
   height: 32px;
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.1);
 }
-.higlight-tile.chess_piece_tile::before {
+.higlight-tile.chess-piece_tile::before {
   content: " ";
   position: absolute;
   width: 84px;
@@ -25,15 +25,16 @@
   border: 8px solid rgba(0, 0, 0, 0.1);
   border-radius: 50%;
 }
-.chess_piece {
+.chess-piece {
   width: 100px;
   height: 100px;
-  background-size: 100px;
   background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100px;
 }
-.chess_piece:hover {
+.chess-piece:hover {
   cursor: grab;
 }
-.chess_piece:active {
+.chess-piece:active {
   cursor: grabbing;
 }

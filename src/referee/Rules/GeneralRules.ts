@@ -1,10 +1,15 @@
-import { Position, Piece, samePosition, TeamType } from "../../../Constants";
+import { Position, Piece, samePosition, TeamType } from "../../Constants";
 
 export const tileIsOccupied = (
   position: Position,
   boardState: Piece[]
 ): boolean => {
-  return !!boardState.find((p) => samePosition(p.position, position));
+  const piece = boardState.find((p) => samePosition(p.position, position));
+
+  if (piece) {
+    return true;
+  }
+  return false;
 };
 
 export const tileIsOccupiedByOpponent = (
@@ -12,7 +17,12 @@ export const tileIsOccupiedByOpponent = (
   boardState: Piece[],
   team: TeamType
 ): boolean => {
-  return !!boardState.find(
+  const piece = boardState.find(
     (p) => samePosition(p.position, position) && p.team !== team
   );
+
+  if (piece) {
+    return true;
+  }
+  return false;
 };

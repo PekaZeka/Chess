@@ -1,20 +1,6 @@
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-a {
-  color: unset;
-  text-decoration: none;
-}
 .App {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  flex-wrap: wrap;
+  display: grid;
+  place-content: center;
   height: 100vh;
-  height: 100svh;
   background-color: #312e2b;
 }

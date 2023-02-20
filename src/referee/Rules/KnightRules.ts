@@ -1,4 +1,4 @@
-import { Position, TeamType, Piece } from "../../../Constants";
+import { Position, TeamType, Piece } from "../../Constants";
 import { tileIsOccupied, tileIsOccupiedByOpponent } from "./GeneralRules";
 
 export const knightMove = (
