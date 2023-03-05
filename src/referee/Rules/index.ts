@@ -4,3 +4,4 @@ export * from "./BishopRules";
 export * from "./RookRules";
 export * from "./QueenRules";
 export * from "./KingRules";
+export * from "./GeneralRules";

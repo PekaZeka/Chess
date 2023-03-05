@@ -3,6 +3,7 @@
   place-content: center;
   width: 100px;
   height: 100px;
+  user-select: none;
 }
 .black-tile {
   background-color: #769656;
