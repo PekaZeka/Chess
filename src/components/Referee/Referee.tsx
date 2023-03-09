@@ -142,7 +142,7 @@ export default function Referee() {
     );
 
     // playMove modifies the board thus we need to call setBoard
-    setBoard((previousBoard) => {
+    setBoard(() => {
       // Playing the move
       playedMoveIsValid = board.playMove(
         enPassantMove,
@@ -156,7 +156,16 @@ export default function Referee() {
 
     // This is for promoting a pawn
     const promotionRow = playedPiece.team === TeamType.OUR ? 7 : 0;
+    // const promotingPawnRow = playedPiece.team === TeamType.OUR ? 6 : 1;
 
+    // if (
+    //   destination.y === promotionRow &&
+    //   playedPiece.position.y === promotingPawnRow &&
+    //   (destination.x === playedPiece.position.x ||
+    //     destination.x === playedPiece.position.x - 1 ||
+    //     destination.x === playedPiece.position.x + 1) &&
+    //   playedPiece.isPawn
+    // )
     if (destination.y === promotionRow && playedPiece.isPawn) {
       modalRef.current?.classList.remove("hidden");
       setPromotionPawn(playedPiece);
@@ -165,22 +174,21 @@ export default function Referee() {
     return playedMoveIsValid;
   }
 
-  function promotePawn(pieceType: PieceType) {
-    if (promotionPawn === undefined) {
-      return;
-    }
+  function promotePawn(promotionPawn: Piece, pieceType: PieceType) {
+    const promotedPiece = new Piece(
+      promotionPawn.position,
+      pieceType,
+      promotionPawn.team
+    );
 
-    board.pieces = board.pieces.reduce((results, piece) => {
+    board.pieces = board.pieces.map((piece) => {
       if (piece.samePiecePosition(promotionPawn)) {
-        piece.type = pieceType;
-        const teamType = piece.team === TeamType.OUR ? "white" : "black";
-        piece.image = `assets/images/${teamType}_${pieceType}.png`;
+        return promotedPiece;
       }
-      results.push(piece);
-      return results;
-    }, [] as Piece[]);
-    updatePossibleMoves();
+      return piece;
+    });
     modalRef.current?.classList.add("hidden");
+    updatePossibleMoves();
   }
 
   function promotionTeamType() {
@@ -192,25 +200,25 @@ export default function Referee() {
       <div className="modal-overlay hidden" ref={modalRef}>
         <div className="modal-body">
           <img
-            onClick={() => promotePawn(PieceType.ROOK)}
+            onClick={() => promotePawn(promotionPawn, PieceType.ROOK)}
             className="promotion-piece"
             src={`/assets/images/${promotionTeamType()}_rook.png`}
             alt="rook"
           />
           <img
-            onClick={() => promotePawn(PieceType.BISHOP)}
+            onClick={() => promotePawn(promotionPawn, PieceType.BISHOP)}
             className="promotion-piece"
             src={`/assets/images/${promotionTeamType()}_bishop.png`}
             alt="bishop"
           />
           <img
-            onClick={() => promotePawn(PieceType.KNIGHT)}
+            onClick={() => promotePawn(promotionPawn, PieceType.KNIGHT)}
             className="promotion-piece"
             src={`/assets/images/${promotionTeamType()}_knight.png`}
             alt="knight"
           />
           <img
-            onClick={() => promotePawn(PieceType.QUEEN)}
+            onClick={() => promotePawn(promotionPawn, PieceType.QUEEN)}
             className="promotion-piece"
             src={`/assets/images/${promotionTeamType()}_queen.png`}
             alt="queen"

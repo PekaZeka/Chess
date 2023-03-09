@@ -22,10 +22,12 @@
   height: 160px;
   width: 800px;
   background-color: rgba(10, 10, 10, 0.7);
+  user-select: none;
 }
 .promotion-piece {
   height: 130px;
   padding: 10px;
+  user-select: none;
 }
 .promotion-piece:hover {
   cursor: pointer;
