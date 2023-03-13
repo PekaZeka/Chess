@@ -165,7 +165,16 @@ export default function Referee() {
     //     destination.x === playedPiece.position.x - 1 ||
     //     destination.x === playedPiece.position.x + 1) &&
     //   playedPiece.isPawn
-    // )
+    // ) {
+    //   const promotedPiece = new Piece(
+    //     destination,
+    //     playedPiece.type,
+    //     playedPiece.team
+    //   );
+    //   modalRef.current?.classList.remove("hidden");
+    //   setPromotionPawn(promotedPiece);
+    // }
+
     if (destination.y === promotionRow && playedPiece.isPawn) {
       modalRef.current?.classList.remove("hidden");
       setPromotionPawn(playedPiece);
@@ -174,21 +183,48 @@ export default function Referee() {
     return playedMoveIsValid;
   }
 
-  function promotePawn(promotionPawn: Piece, pieceType: PieceType) {
+  function promotePawn(pieceType: PieceType) {
+    if (promotionPawn === undefined) {
+      return;
+    }
+
+    promotionPawn.position.x -= 1;
+    promotionPawn.position.y += 1;
+
     const promotedPiece = new Piece(
       promotionPawn.position,
       pieceType,
       promotionPawn.team
     );
 
-    board.pieces = board.pieces.map((piece) => {
-      if (piece.samePiecePosition(promotionPawn)) {
-        return promotedPiece;
-      }
-      return piece;
-    });
-    modalRef.current?.classList.add("hidden");
+    const newBoard: Board = {
+      ...board,
+      clone: board.clone,
+      playMove: board.playMove,
+      calculateAllMoves: board.calculateAllMoves,
+      getValidMoves: board.getValidMoves,
+      pieces: board.pieces.map((piece: Piece) => {
+        if (piece.samePiecePosition(promotionPawn)) {
+          return promotedPiece;
+        }
+        return piece;
+      }),
+    };
+
+    setBoard(newBoard);
+
+    // board.pieces = board.pieces.reduce((results, piece) => {
+    //   if (piece.samePiecePosition(promotionPawn)) {
+    //     piece.type = pieceType;
+    //     const teamType = piece.team === TeamType.OUR ? "white" : "black";
+    //     piece.image = `assets/images/${teamType}_${pieceType}.png`;
+    //   }
+    //   results.push(piece);
+    //   return results;
+    // }, [] as Piece[]);
+
     updatePossibleMoves();
+    modalRef.current?.classList.add("hidden");
   }
 
   function promotionTeamType() {
@@ -200,25 +236,25 @@ export default function Referee() {
       <div className="modal-overlay hidden" ref={modalRef}>
         <div className="modal-body">
           <img
-            onClick={() => promotePawn(promotionPawn, PieceType.ROOK)}
+            onClick={() => promotePawn(PieceType.ROOK)}
             className="promotion-piece"
             src={`/assets/images/${promotionTeamType()}_rook.png`}
             alt="rook"
           />
           <img
-            onClick={() => promotePawn(promotionPawn, PieceType.BISHOP)}
+            onClick={() => promotePawn(PieceType.BISHOP)}
             className="promotion-piece"
             src={`/assets/images/${promotionTeamType()}_bishop.png`}
             alt="bishop"
           />
           <img
-            onClick={() => promotePawn(promotionPawn, PieceType.KNIGHT)}
+            onClick={() => promotePawn(PieceType.KNIGHT)}
             className="promotion-piece"
             src={`/assets/images/${promotionTeamType()}_knight.png`}
             alt="knight"
           />
           <img
-            onClick={() => promotePawn(promotionPawn, PieceType.QUEEN)}
+            onClick={() => promotePawn(PieceType.QUEEN)}
             className="promotion-piece"
             src={`/assets/images/${promotionTeamType()}_queen.png`}
             alt="queen"
