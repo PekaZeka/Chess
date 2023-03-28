@@ -6,14 +6,6 @@
 import { useEffect, useRef, useState } from "react";
 import { initialBoard } from "../../Constants";
 import { Board, Pawn, Piece, Position } from "../../models";
-import {
-  bishopMove,
-  kingMove,
-  knightMove,
-  pawnMove,
-  queenMove,
-  rookMove,
-} from "../../referee/Rules";
 import { PieceType, TeamType } from "../../Types";
 import Chessboard from "../Chessboard/Chessboard";
 
@@ -22,12 +14,8 @@ export default function Referee() {
   const [promotionPawn, setPromotionPawn] = useState<Piece>();
   const modalRef = useRef<HTMLDivElement>(null);
 
-  function updatePossibleMoves() {
-    board.calculateAllMoves();
-  }
-
   useEffect(() => {
-    updatePossibleMoves();
+    board.calculateAllMoves();
   }, []);
 
   function isEnPassantMove(
@@ -60,79 +48,24 @@ export default function Referee() {
     return false;
   }
 
-  function isValidMove(
-    initialPosition: Position,
-    desiredPosition: Position,
-    type: PieceType,
-    team: TeamType
-  ): boolean {
-    let validMove = false;
-    switch (type) {
-      case PieceType.PAWN:
-        validMove = pawnMove(
-          initialPosition,
-          desiredPosition,
-          team,
-          board.pieces
-        );
-        break;
-      case PieceType.KNIGHT:
-        validMove = knightMove(
-          initialPosition,
-          desiredPosition,
-          team,
-          board.pieces
-        );
-        break;
-      case PieceType.BISHOP:
-        validMove = bishopMove(
-          initialPosition,
-          desiredPosition,
-          team,
-          board.pieces
-        );
-        break;
-      case PieceType.ROOK:
-        validMove = rookMove(
-          initialPosition,
-          desiredPosition,
-          team,
-          board.pieces
-        );
-        break;
-      case PieceType.QUEEN:
-        validMove = queenMove(
-          initialPosition,
-          desiredPosition,
-          team,
-          board.pieces
-        );
-        break;
-      case PieceType.KING:
-        validMove = kingMove(
-          initialPosition,
-          desiredPosition,
-          team,
-          board.pieces
-        );
-        break;
-
-      default:
-        break;
-    }
-
-    return validMove;
-  }
-
   function playMove(playedPiece: Piece, destination: Position): boolean {
+    // If the playing piece doesn't have any moves, return
+    if (playedPiece.possibleMoves === undefined) return false;
+
+    // Prevent the inactive team from playing
+    if (playedPiece.team === TeamType.OUR && board.totalTurns % 2 !== 1) {
+      return false;
+    }
+    if (playedPiece.team === TeamType.OPPONENT && board.totalTurns % 2 === 1) {
+      return false;
+    }
     let playedMoveIsValid = false;
 
-    const validMove = isValidMove(
-      playedPiece.position,
-      destination,
-      playedPiece.type,
-      playedPiece.team
+    const validMove = playedPiece.possibleMoves?.some((m) =>
+      m.samePosition(destination)
     );
+
+    if (!validMove) return false;
 
     const enPassantMove = isEnPassantMove(
       playedPiece.position,
@@ -143,41 +76,29 @@ export default function Referee() {
 
     // playMove modifies the board thus we need to call setBoard
     setBoard(() => {
+      const clonedBoard = board.clone();
+      clonedBoard.totalTurns += 1;
       // Playing the move
-      playedMoveIsValid = board.playMove(
+      playedMoveIsValid = clonedBoard.playMove(
         enPassantMove,
         playedPiece,
         validMove,
         destination
       );
 
-      return board.clone();
+      return clonedBoard;
     });
 
     // This is for promoting a pawn
     const promotionRow = playedPiece.team === TeamType.OUR ? 7 : 0;
-    // const promotingPawnRow = playedPiece.team === TeamType.OUR ? 6 : 1;
-
-    // if (
-    //   destination.y === promotionRow &&
-    //   playedPiece.position.y === promotingPawnRow &&
-    //   (destination.x === playedPiece.position.x ||
-    //     destination.x === playedPiece.position.x - 1 ||
-    //     destination.x === playedPiece.position.x + 1) &&
-    //   playedPiece.isPawn
-    // ) {
-    //   const promotedPiece = new Piece(
-    //     destination,
-    //     playedPiece.type,
-    //     playedPiece.team
-    //   );
-    //   modalRef.current?.classList.remove("hidden");
-    //   setPromotionPawn(promotedPiece);
-    // }
 
     if (destination.y === promotionRow && playedPiece.isPawn) {
       modalRef.current?.classList.remove("hidden");
-      setPromotionPawn(playedPiece);
+      setPromotionPawn(() => {
+        const clonedPlayedPiece = playedPiece.clone();
+        clonedPlayedPiece.position = destination.clone();
+        return clonedPlayedPiece;
+      });
     }
 
     return playedMoveIsValid;
@@ -188,42 +109,22 @@ export default function Referee() {
       return;
     }
 
-    promotionPawn.position.x -= 1;
-    promotionPawn.position.y += 1;
+    setBoard(() => {
+      const clonedBoard = board.clone();
 
-    const promotedPiece = new Piece(
-      promotionPawn.position,
-      pieceType,
-      promotionPawn.team
-    );
-
-    const newBoard: Board = {
-      ...board,
-      clone: board.clone,
-      playMove: board.playMove,
-      calculateAllMoves: board.calculateAllMoves,
-      getValidMoves: board.getValidMoves,
-      pieces: board.pieces.map((piece: Piece) => {
+      clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
         if (piece.samePiecePosition(promotionPawn)) {
-          return promotedPiece;
+          results.push(
+            new Piece(piece.position.clone(), pieceType, piece.team)
+          );
+        } else {
+          results.push(piece);
         }
-        return piece;
-      }),
-    };
-
-    setBoard(newBoard);
-
-    // board.pieces = board.pieces.reduce((results, piece) => {
-    //   if (piece.samePiecePosition(promotionPawn)) {
-    //     piece.type = pieceType;
-    //     const teamType = piece.team === TeamType.OUR ? "white" : "black";
-    //     piece.image = `assets/images/${teamType}_${pieceType}.png`;
-    //   }
-    //   results.push(piece);
-    //   return results;
-    // }, [] as Piece[]);
-
-    updatePossibleMoves();
+        return results;
+      }, [] as Piece[]);
+      clonedBoard.calculateAllMoves();
+      return clonedBoard;
+    });
     modalRef.current?.classList.add("hidden");
   }
 
@@ -233,6 +134,7 @@ export default function Referee() {
 
   return (
     <>
+      <p style={{ color: "white", fontSize: "24px" }}>{board.totalTurns}</p>
       <div className="modal-overlay hidden" ref={modalRef}>
         <div className="modal-body">
           <img

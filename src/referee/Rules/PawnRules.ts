@@ -10,7 +10,7 @@ export const pawnMove = (
 ): boolean => {
   const specialRow = team === TeamType.OUR ? 1 : 6;
   const pawnDirection = team === TeamType.OUR ? 1 : -1;
-  // MOVEMENT LOGIC
+  // Movement logic
   if (
     initialPosition.x === desiredPosition.x &&
     initialPosition.y === specialRow &&
@@ -33,7 +33,7 @@ export const pawnMove = (
       return true;
     }
   }
-  // ATTACK LOGIC
+  // Attack logic
   else if (
     desiredPosition.x - initialPosition.x === -1 &&
     desiredPosition.y - initialPosition.y === pawnDirection
@@ -77,10 +77,10 @@ export const getPossiblePawnMoves = (
   const enPassantLeft = new Position(pawn.position.x - 1, pawn.position.y);
   const enPassantRight = new Position(pawn.position.x + 1, pawn.position.y);
 
-  // ONE TILE AHEAD
+  // One tile ahead
   if (!tileIsOccupied(normalMove, boardState)) {
     possibleMoves.push(normalMove);
-    // ONE/TWO TILEs AHEAD IF FIRST MOVE
+    // One or two tiles ahead if it's the first move
     if (
       pawn.position.y === specialRow &&
       !tileIsOccupied(specialMove, boardState)

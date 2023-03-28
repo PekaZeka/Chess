@@ -117,11 +117,13 @@ export default function Chessboard({ playMove, pieces }: Props) {
     }
   }
 
-  const verticalAxisItems = VERTICAL_AXIS.map((item) => (
-    <div className="axis_items" key={item}>
-      {item}
-    </div>
-  ));
+  const verticalAxisItems = VERTICAL_AXIS.slice(0)
+    .reverse()
+    .map((item) => (
+      <div className="axis_items" key={item}>
+        {item}
+      </div>
+    ));
   const horizontalAxisItems = HORIZONTAL_AXIS.map((item) => (
     <div className="axis_items" key={item}>
       {item}
