@@ -115,7 +115,7 @@ export default function Referee() {
       clonedBoard.pieces = clonedBoard.pieces.reduce((results, piece) => {
         if (piece.samePiecePosition(promotionPawn)) {
           results.push(
-            new Piece(piece.position.clone(), pieceType, piece.team)
+            new Piece(piece.position.clone(), pieceType, piece.team, true)
           );
         } else {
           results.push(piece);

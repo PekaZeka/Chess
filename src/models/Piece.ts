@@ -10,18 +10,22 @@ export default class Piece {
 
   team: TeamType;
 
+  hasMoved: boolean;
+
   possibleMoves?: Position[];
 
   constructor(
     position: Position,
     type: PieceType,
     team: TeamType,
+    hasMoved: boolean,
     possibleMoves: Position[] = []
   ) {
     this.image = `assets/images/${team}_${type}.png`;
     this.position = position;
     this.type = type;
     this.team = team;
+    this.hasMoved = hasMoved;
     this.possibleMoves = possibleMoves;
   }
 
@@ -62,6 +66,7 @@ export default class Piece {
       this.position.clone(),
       this.type,
       this.team,
+      this.hasMoved,
       this.possibleMoves?.map((p) => p.clone())
     );
   }
