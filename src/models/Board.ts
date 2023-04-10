@@ -2,7 +2,6 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable import/no-cycle */
 import {
   getPossiblePawnMoves,
   getPossibleKnightMoves,

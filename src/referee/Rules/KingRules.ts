@@ -1,7 +1,7 @@
-/* eslint-disable import/no-cycle */
 /* eslint-disable no-continue */
 /* eslint-disable no-restricted-syntax */
-import { Piece, Position } from "../../models";
+import Position from "../../models/Position";
+import Piece from "../../models/Piece";
 import { TeamType } from "../../Types";
 import { tileIsOccupied, tileIsOccupiedByOpponent } from "./GeneralRules";
 
