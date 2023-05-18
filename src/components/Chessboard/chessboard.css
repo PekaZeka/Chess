@@ -24,6 +24,29 @@
   background-color: rgba(10, 10, 10, 0.7);
   user-select: none;
 }
+.checkmate-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2.5rem;
+  font-size: 32px;
+  color: #eeeed2;
+}
+.rematch-button {
+  font-size: 22px;
+  width: fit-content;
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  letter-spacing: 0.11rem;
+  background: #3b6d08;
+  color: #eeeed2;
+  border: none;
+  cursor: pointer;
+  box-shadow: rgba(0, 0, 0, 0.3) 4px 5px 12px 4px;
+  -moz-box-shadow: rgba(0, 0, 0, 0.3) 4px 5px 12px 4px;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.3) 4px 5px 12px 4px;
+}
 .promotion-piece {
   height: 130px;
   padding: 10px;

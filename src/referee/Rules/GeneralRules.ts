@@ -27,3 +27,15 @@ export const tileIsOccupiedByOpponent = (
   }
   return false;
 };
+
+export const moveOutsideBoard = (destination: Position): boolean => {
+  if (
+    destination.x < 0 ||
+    destination.x > 7 ||
+    destination.y < 0 ||
+    destination.y > 7
+  ) {
+    return true;
+  }
+  return false;
+};

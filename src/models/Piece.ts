@@ -70,4 +70,9 @@ export default class Piece {
       this.possibleMoves?.map((p) => p.clone())
     );
   }
+
+  static playSound(soundFile: string) {
+    const audio = new Audio(`/assets/sounds/${soundFile}.mp3`);
+    audio.play();
+  }
 }

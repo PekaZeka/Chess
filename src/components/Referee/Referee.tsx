@@ -3,20 +3,17 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { initialBoard } from "../../Constants";
 import { Board, Pawn, Piece, Position } from "../../models";
 import { PieceType, TeamType } from "../../Types";
 import Chessboard from "../Chessboard/Chessboard";
 
 export default function Referee() {
-  const [board, setBoard] = useState<Board>(initialBoard);
+  const [board, setBoard] = useState<Board>(initialBoard.clone());
   const [promotionPawn, setPromotionPawn] = useState<Piece>();
   const modalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    board.calculateAllMoves();
-  }, []);
+  const checkmateModalRef = useRef<HTMLDivElement>(null);
 
   function isEnPassantMove(
     initialPosition: Position,
@@ -40,6 +37,7 @@ export default function Referee() {
             (p as Pawn).enPassant
         );
         if (piece) {
+          Piece.playSound("Capture");
           return true;
         }
       }
@@ -86,6 +84,10 @@ export default function Referee() {
         destination
       );
 
+      if (clonedBoard.winningTeam !== undefined) {
+        checkmateModalRef.current?.classList.remove("hidden");
+      }
+
       return clonedBoard;
     });
 
@@ -123,6 +125,7 @@ export default function Referee() {
         return results;
       }, [] as Piece[]);
       clonedBoard.calculateAllMoves();
+      Piece.playSound("Promote");
       return clonedBoard;
     });
     modalRef.current?.classList.add("hidden");
@@ -132,9 +135,14 @@ export default function Referee() {
     return promotionPawn?.team === TeamType.OUR ? "white" : "black";
   }
 
+  function restartGame() {
+    checkmateModalRef.current?.classList.add("hidden");
+    setBoard(initialBoard.clone());
+    Piece.playSound("Start");
+  }
+
   return (
     <>
-      <p style={{ color: "white", fontSize: "24px" }}>{board.totalTurns}</p>
       <div className="modal-overlay hidden" ref={modalRef}>
         <div className="modal-body">
           <img
@@ -161,6 +169,23 @@ export default function Referee() {
             src={`/assets/images/${promotionTeamType()}_queen.png`}
             alt="queen"
           />
+        </div>
+      </div>
+      <div ref={checkmateModalRef} className="modal-overlay hidden">
+        <div className="modal-body">
+          <div className="checkmate-body">
+            <span>
+              The winning team is{" "}
+              {board.winningTeam === TeamType.OUR ? "white" : "black"}!
+            </span>
+            <button
+              className="rematch-button"
+              type="button"
+              onClick={restartGame}
+            >
+              Play again
+            </button>
+          </div>
         </div>
       </div>
       <Chessboard playMove={playMove} pieces={board.pieces} />

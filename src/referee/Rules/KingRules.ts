@@ -3,7 +3,11 @@
 import Position from "../../models/Position";
 import Piece from "../../models/Piece";
 import { TeamType } from "../../Types";
-import { tileIsOccupied, tileIsOccupiedByOpponent } from "./GeneralRules";
+import {
+  moveOutsideBoard,
+  tileIsOccupied,
+  tileIsOccupiedByOpponent,
+} from "./GeneralRules";
 
 export const kingMove = (
   initialPosition: Position,
@@ -52,6 +56,12 @@ export const getPossibleKingMoves = (
   // UP
   for (let i = 1; i < 2; i += 1) {
     const destination = new Position(king.position.x, king.position.y + i);
+
+    // If the move is outside of the board don't add it
+    if (moveOutsideBoard(destination)) {
+      break;
+    }
+
     if (!tileIsOccupied(destination, boardState)) {
       possibleMoves.push(destination);
     } else if (tileIsOccupiedByOpponent(destination, boardState, king.team)) {
@@ -64,6 +74,12 @@ export const getPossibleKingMoves = (
   // DOWN
   for (let i = 1; i < 2; i += 1) {
     const destination = new Position(king.position.x, king.position.y - i);
+
+    // If the move is outside of the board don't add it
+    if (moveOutsideBoard(destination)) {
+      break;
+    }
+
     if (!tileIsOccupied(destination, boardState)) {
       possibleMoves.push(destination);
     } else if (tileIsOccupiedByOpponent(destination, boardState, king.team)) {
@@ -76,6 +92,12 @@ export const getPossibleKingMoves = (
   // LEFT
   for (let i = 1; i < 2; i += 1) {
     const destination = new Position(king.position.x - i, king.position.y);
+
+    // If the move is outside of the board don't add it
+    if (moveOutsideBoard(destination)) {
+      break;
+    }
+
     if (!tileIsOccupied(destination, boardState)) {
       possibleMoves.push(destination);
     } else if (tileIsOccupiedByOpponent(destination, boardState, king.team)) {
@@ -88,6 +110,12 @@ export const getPossibleKingMoves = (
   // RIGHT
   for (let i = 1; i < 2; i += 1) {
     const destination = new Position(king.position.x + i, king.position.y);
+
+    // If the move is outside of the board don't add it
+    if (moveOutsideBoard(destination)) {
+      break;
+    }
+
     if (!tileIsOccupied(destination, boardState)) {
       possibleMoves.push(destination);
     } else if (tileIsOccupiedByOpponent(destination, boardState, king.team)) {
@@ -100,6 +128,12 @@ export const getPossibleKingMoves = (
   // TOP RIGHT
   for (let i = 1; i < 2; i += 1) {
     const destination = new Position(king.position.x + i, king.position.y + i);
+
+    // If the move is outside of the board don't add it
+    if (moveOutsideBoard(destination)) {
+      break;
+    }
+
     if (!tileIsOccupied(destination, boardState)) {
       possibleMoves.push(destination);
     } else if (tileIsOccupiedByOpponent(destination, boardState, king.team)) {
@@ -112,6 +146,12 @@ export const getPossibleKingMoves = (
   // BOT RIGHT
   for (let i = 1; i < 2; i += 1) {
     const destination = new Position(king.position.x + i, king.position.y - i);
+
+    // If the move is outside of the board don't add it
+    if (moveOutsideBoard(destination)) {
+      break;
+    }
+
     if (!tileIsOccupied(destination, boardState)) {
       possibleMoves.push(destination);
     } else if (tileIsOccupiedByOpponent(destination, boardState, king.team)) {
@@ -124,6 +164,12 @@ export const getPossibleKingMoves = (
   // TOP LEFT
   for (let i = 1; i < 2; i += 1) {
     const destination = new Position(king.position.x - i, king.position.y + i);
+
+    // If the move is outside of the board don't add it
+    if (moveOutsideBoard(destination)) {
+      break;
+    }
+
     if (!tileIsOccupied(destination, boardState)) {
       possibleMoves.push(destination);
     } else if (tileIsOccupiedByOpponent(destination, boardState, king.team)) {
@@ -136,6 +182,12 @@ export const getPossibleKingMoves = (
   // BOT LEFT
   for (let i = 1; i < 2; i += 1) {
     const destination = new Position(king.position.x - i, king.position.y - i);
+
+    // If the move is outside of the board don't add it
+    if (moveOutsideBoard(destination)) {
+      break;
+    }
+
     if (!tileIsOccupied(destination, boardState)) {
       possibleMoves.push(destination);
     } else if (tileIsOccupiedByOpponent(destination, boardState, king.team)) {
@@ -149,7 +201,7 @@ export const getPossibleKingMoves = (
   return possibleMoves;
 };
 
-// In this method the enemy moves have already been calculated
+// Enemy moves have already been calculated
 export const getCastlingMoves = (
   king: Piece,
   boardState: Piece[]
@@ -158,7 +210,7 @@ export const getCastlingMoves = (
 
   if (king.hasMoved) return possibleMoves;
 
-  // We get the rooks from the king's team which haven't moved
+  // Rooks from the king's team which haven't moved
   const rooks = boardState.filter(
     (p) => p.isRook && p.team === king.team && !p.hasMoved
   );
@@ -171,7 +223,7 @@ export const getCastlingMoves = (
     const adjacentPosition = king.position.clone();
     adjacentPosition.x += direction;
 
-    // Check if the rook can move to the adjacent tile of the king
+    // Checking if the rook can move to the adjacent tile of the king
     if (!rook.possibleMoves?.some((m) => m.samePosition(adjacentPosition)))
       continue;
 
@@ -197,7 +249,7 @@ export const getCastlingMoves = (
 
     if (!valid) continue;
 
-    // We now want to add it as a possible move
+    // Add it as a possible move
     possibleMoves.push(rook.position.clone());
   }
   return possibleMoves;

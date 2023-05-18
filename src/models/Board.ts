@@ -21,6 +21,8 @@ export default class Board {
 
   totalTurns: number;
 
+  winningTeam?: TeamType;
+
   constructor(pieces: Piece[], totalTurns: number) {
     this.pieces = pieces;
     this.totalTurns = totalTurns;
@@ -69,6 +71,22 @@ export default class Board {
     )) {
       piece.possibleMoves = [];
     }
+
+    // Check if the playing team still has moves left
+    // Otherwise, checkmate!
+    if (
+      this.pieces
+        .filter((p) => p.team === this.currentTeam)
+        .some(
+          (p) => p.possibleMoves !== undefined && p.possibleMoves.length > 0
+        )
+    ) {
+      return;
+    }
+    Piece.playSound("Checkmate");
+    console.log("Checkmate");
+    this.winningTeam =
+      this.currentTeam === TeamType.OUR ? TeamType.OPPONENT : TeamType.OUR;
   }
 
   get currentTeam(): TeamType {
@@ -76,6 +94,13 @@ export default class Board {
   }
 
   checkCurrentTeamMoves() {
+    let kingChecked = false;
+
+    // Get the current team's king
+    const king = this.pieces.find(
+      (p) => p.isKing && p.team === this.currentTeam
+    )!;
+
     // Loop through all the current team's pieces
     for (const piece of this.pieces.filter(
       (p) => p.team === this.currentTeam
@@ -102,6 +127,8 @@ export default class Board {
           (p) => p.isKing && p.team === simulatedBoard.currentTeam
         )!;
 
+        let moveValid = true;
+
         // Loop through all enemy pieces, update their possible moves
         // And check if the current team's king will be in danger
         for (const enemy of simulatedBoard.pieces.filter(
@@ -112,27 +139,39 @@ export default class Board {
             simulatedBoard.pieces
           );
 
-          if (enemy.isPawn) {
-            if (
-              enemy.possibleMoves.some(
-                (m) =>
-                  m.x !== enemy.position.x &&
-                  m.samePosition(clonedKing.position)
-              )
-            ) {
-              piece.possibleMoves = piece.possibleMoves?.filter(
-                (m) => !m.samePosition(move)
-              );
-            }
-          } else if (
+          if (
             enemy.possibleMoves.some((m) => m.samePosition(clonedKing.position))
           ) {
-            piece.possibleMoves = piece.possibleMoves?.filter(
-              (m) => !m.samePosition(move)
-            );
+            moveValid = false;
+            break;
+          }
+        }
+
+        if (!moveValid) {
+          piece.possibleMoves = piece.possibleMoves.filter(
+            (m) => !m.samePosition(move)
+          );
+        } else {
+          // The move doesn't put the king in danger, so check if the king is already in check
+          for (const enemy of this.pieces.filter(
+            (p) => p.team !== this.currentTeam
+          )) {
+            enemy.possibleMoves = this.getValidMoves(enemy, this.pieces);
+
+            if (
+              enemy.possibleMoves.some((m) => m.samePosition(king.position))
+            ) {
+              kingChecked = true;
+              break;
+            }
           }
         }
       }
+    }
+
+    if (kingChecked) {
+      Piece.playSound("Check");
+      console.log("Check");
     }
   }
 
@@ -143,9 +182,34 @@ export default class Board {
     destination: Position
   ): boolean {
     const pawnDirection = playedPiece.team === TeamType.OUR ? 1 : -1;
+    const destinationPiece = this.pieces.find((p) =>
+      p.samePosition(destination)
+    );
 
     // Logic for castling
-    // code goes here***
+    if (
+      playedPiece.isKing &&
+      destinationPiece?.isRook &&
+      destinationPiece.team === playedPiece.team
+    ) {
+      const direction =
+        destinationPiece.position.x - playedPiece.position.x > 0 ? 1 : -1;
+      const newKingXPosition = playedPiece.position.x + direction * 2;
+
+      this.pieces = this.pieces.map((p) => {
+        if (p.samePiecePosition(playedPiece)) {
+          p.position.x = newKingXPosition;
+        } else if (p.samePiecePosition(destinationPiece)) {
+          p.position.x = newKingXPosition - direction;
+        }
+
+        return p;
+      });
+      this.calculateAllMoves();
+      Piece.playSound("Castling");
+      console.log("Castling");
+      return true;
+    }
 
     if (enPassantMove) {
       this.pieces = this.pieces.reduce((results, piece) => {
@@ -200,10 +264,58 @@ export default class Board {
         return results;
       }, [] as Piece[]);
 
+      let kingChecked = false;
+      for (const piece of this.pieces.filter(
+        (p) => p.team !== this.currentTeam
+      )) {
+        piece.possibleMoves = this.getValidMoves(piece, this.pieces);
+
+        const king = this.pieces.find(
+          (p) => p.isKing && p.team === this.currentTeam
+        )!;
+
+        if (piece.possibleMoves.some((m) => m.samePosition(king.position))) {
+          kingChecked = true;
+          break;
+        }
+      }
+
+      if (destinationPiece && !kingChecked) {
+        Piece.playSound("Capture");
+        console.log("Capture");
+      } else if (!kingChecked) {
+        Piece.playSound("Move");
+        console.log("Move");
+      }
+
       this.calculateAllMoves();
     } else {
-      return false;
+      // Check if the king is in check
+      const king = this.pieces.find(
+        (p) => p.isKing && p.team === this.currentTeam
+      )!;
+
+      let kingChecked = false;
+
+      for (const enemy of this.pieces.filter(
+        (p) => p.team !== this.currentTeam
+      )) {
+        enemy.possibleMoves = this.getValidMoves(enemy, this.pieces);
+
+        if (enemy.possibleMoves.some((m) => m.samePosition(king.position))) {
+          kingChecked = true;
+          break;
+        }
+      }
+
+      if (kingChecked) {
+        Piece.playSound("InCheck");
+        console.log("InCheck");
+      }
+
+      return true;
     }
+
     return true;
   }
 
